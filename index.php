@@ -25,22 +25,8 @@ require_once 'listing.php'; ?>
                         </select>
                     </label>
                     <input type="submit" class="btn" value="Save">
+                    <?php require_once 'processing.php';?>
                 </form>
         </div>
-<?php 
-if (isset($_FILES['files'])) {
-    $paths = $_FILES['files']['tmp_name'];
-    $names = $_FILES['files']['name'];
-    $fileName = $_POST['file-name'];
-    $fileExt = $_POST['extention'];
-    $listing = new Listing($names, $paths, $fileName, $fileExt);
-    if (isset($listing->messages['rewrite'])) {
-        echo $listing->messages['rewrite'];
-        die;
-    }
-    $listing->processing();
-    $listing->downloadFile();
-}
-?>
     </body>
 </html>

@@ -2,21 +2,25 @@
 
 Class Listing {
     
-    public $output;
-    public $names;
-    public $paths;
-    public $messages;
+    private $output;
+    private $names;
+    private $paths;
+    private $messages;
 
     public function __construct($names, $paths, $fileName, $fileExt) {
         $this->names = $names;
         $this->paths = $paths;
         $this->output = $fileName . '.' . $fileExt;
         $this->messages = array();
-        if (file_exists($this->output) && !unlink($this->output))
-            $this->messages['rewrite'] = 'SERVER ERROR: file with this name already exist, and cannot be rewrite';
+        $this->rewriteExistedFile($this->output);
     }
     
-    function processing() {
+    private function rewriteExistedFile($file) {
+        if (file_exists($file) && !unlink($file))
+            throw new Exception('SERVER ERROR: file with this name already exist, and cannot be rewrite');
+    }
+            
+    public function processing() {
         $fh = fopen($this->output, 'a');
         for ($i = 0; $i < count($this->names); $i++) {
             $title = 'File: ' . $this->names[$i] . ': ';
@@ -28,7 +32,7 @@ Class Listing {
         fclose($fh);
     }
     
-    function getArrayOfLines($path) {
+    private function getArrayOfLines($path) {
         $fileAsArray = file($path);
         foreach($fileAsArray as $num => $line) {
             if (preg_match("((^[\s]+$)|(^//))", $line))
@@ -37,7 +41,7 @@ Class Listing {
         return $fileAsArray;
     }
 
-    function writeArrayInFile($array, $fh) {
+    private function writeArrayInFile($array, $fh) {
         $array = array_values($array);
         foreach ($array as $num => $line) {
     //        $line = htmlspecialchars($line);
@@ -46,7 +50,7 @@ Class Listing {
         }
     }
     
-    function downloadFile() {
+    public function downloadFile() {
         header('X-Sendfile: ' . realpath($this->output));
         header('Content-Type: application/octet-stream');
         header('Content-Disposition: attachment; filename=' . basename($this->output));
